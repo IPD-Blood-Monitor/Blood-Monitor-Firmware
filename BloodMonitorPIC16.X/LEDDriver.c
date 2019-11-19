@@ -18,17 +18,19 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
+#define PERIOD_COUNT_FOR_CHANGE 30000 // frequency of the PWM so 1s
 typedef enum 
 {
-    LED660 = 1,
-    LED850 = 2,
-    LED940 = 3,
-    NOLED  = 4
+    LED660 = 0,
+    LED850 = 1,
+    LED940 = 2,
+    NOLED  = 3
 }MUXChannel_t;
 
 pwmChangeCallbackFunction p_pwmChangeCallbackFunctionfp;
 bool pwmChangeCallbackFunctionConnected  = false;
-
+unsigned int periodCount = 0;
+MUXChannel_t currentLED = NOLED;
 /****************************************************************************
  Forward Declarations
 ****************************************************************************/
@@ -112,11 +114,14 @@ void InitializeLEDDriver(bool UsePWMUc, pwmChangeCallbackFunction p_pwmChangeCal
     PIN_MANAGER_Initialize();
     
     // turn off the mux by selecting the 4th channel
-    changeMux(NOLED);
+    currentLED = NOLED;
+    changeMux(currentLED);
     
     // start the PWM
-    TMR2_StartTimer();  
+    TMR2_StartTimer();
     
+    // set the period count that it will switch on next LED after first period
+    periodCount = PERIOD_COUNT_FOR_CHANGE;    
 }
 
 
@@ -180,6 +185,19 @@ void changeMux(MUXChannel_t LED)
  */
 void timer2InterruptHandler(void)
 {
+    // up the counter
+    periodCount++;
+    
+    // check if LED should change
+    if (periodCount >= PERIOD_COUNT_FOR_CHANGE)
+    {
+        // change the mux that drives the LEDS
+        currentLED = (currentLED + 1) % 3;
+        changeMux(currentLED);
+        
+        // reset period count
+        periodCount = 0;
+    }
     // call the pwm change callbackfunction
     p_pwmChangeCallbackFunctionfp();
 
@@ -188,7 +206,6 @@ void timer2InterruptHandler(void)
             
     // start timer 3
     TMR3_StartTimer();
-    
 }
 
 /**
