@@ -50,6 +50,9 @@
 #define PWMUCGEN true
 #define ADCUCACQ true
 #define ARDUINO_ADDRESS 0x08
+#define SKIP_I2C 
+
+//letop 5V voeden vanuitpic staat aan!!!!!
 /**
    @Description
  * this function is called when the input signal needs to be measured timeBased
@@ -153,6 +156,7 @@ void measureInputDiodeTimeCallbackFunction(void)
  */
 void SendDataCallbackFunction(void)
 {
+#ifndef SKIP_I2C
     // copy the array in the send array
     for(int i = 0; i < 8; i++)
     {
@@ -171,6 +175,7 @@ void SendDataCallbackFunction(void)
     
     // send the data
     sendDataArrayI2C((char)ARDUINO_ADDRESS);
+#endif
 }
 
 

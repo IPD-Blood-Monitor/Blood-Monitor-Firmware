@@ -18,7 +18,7 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
-#define PERIOD_COUNT_FOR_CHANGE 30000 // frequency of the PWM so 1s
+#define PERIOD_COUNT_FOR_CHANGE 10000 // frequency of the PWM so 1s
 typedef enum 
 {
     LED660 = 0,
