@@ -41,7 +41,7 @@
  Defines
 ****************************************************************************/
 // The Callbackfunction for if the ADC is done
-typedef void (*pwmChangeCallbackFunction)(void);
+typedef void (*measureInputCallbackFunction)(void);
 
 /****************************************************************************
  Public Functions
@@ -63,7 +63,7 @@ typedef void (*pwmChangeCallbackFunction)(void);
    @Returns
      None
  */
-void InitializeLEDDriver(bool UsePWMUc, pwmChangeCallbackFunction p_pwmChangeCallbackFunction);
+void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction);
 
 
 

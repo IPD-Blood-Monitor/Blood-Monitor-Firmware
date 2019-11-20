@@ -70,6 +70,10 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         {
             I2C1_ISR();
         } 
+        else if(PIE2bits.TMR4IE == 1 && PIR2bits.TMR4IF == 1)
+        {
+            TMR4_ISR();
+        } 
         else if(PIE3bits.TMR3IE == 1 && PIR3bits.TMR3IF == 1)
         {
             TMR3_ISR();

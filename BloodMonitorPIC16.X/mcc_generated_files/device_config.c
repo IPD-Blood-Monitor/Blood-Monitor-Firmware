@@ -48,7 +48,7 @@
 
 // CONFIG1
 #pragma config FEXTOSC = ECH    // FEXTOSC External Oscillator mode Selection bits->EC (external clock) above 8 MHz
-#pragma config RSTOSC = EXT1X    // Power-up default value for COSC bits->EXTOSC operating per FEXTOSC bits
+#pragma config RSTOSC = EXT4X    // Power-up default value for COSC bits->EXTOSC with 4x PLL, with EXTOSC operating per FEXTOSC bits
 #pragma config CLKOUTEN = ON    // Clock Out Enable bit->CLKOUT function is enabled; FOSC/4 clock appears at OSC2
 #pragma config CSWEN = ON    // Clock Switch Enable bit->Writing to NOSC and NDIV is allowed
 #pragma config FCMEN = ON    // Fail-Safe Clock Monitor Enable->Fail-Safe Clock Monitor is enabled

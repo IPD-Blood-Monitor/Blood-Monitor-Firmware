@@ -49,9 +49,10 @@
 
 #define PWMUCGEN true
 #define ADCUCACQ true
+#define ARDUINO_ADDRESS 0x08
 /**
    @Description
- * this function is called when the PWM changes from high to low or vica versa
+ * this function is called when the input signal needs to be measured timeBased
 
    @Preconditions
     it needs to be connected 
@@ -62,7 +63,22 @@
    @Returns
      None
  */
-void mainPwmChangeCallbackFunction(void);
+void measureInputDiodeTimeCallbackFunction(void);
+
+/**
+   @Description
+ * this function is called when new data should be send
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void SendDataCallbackFunction(void);
 
 /*
                          Main application
@@ -88,10 +104,13 @@ void main(void)
     //INTERRUPT_PeripheralInterruptDisable();
 
     // initial LED driver
-    InitializeLEDDriver(PWMUCGEN, &mainPwmChangeCallbackFunction);
+    InitializeLEDDriver(PWMUCGEN, &measureInputDiodeTimeCallbackFunction);
     
     // initialize data conversion
-    initializeDataConversion();
+    initializeDataConversion(&SendDataCallbackFunction);
+    
+    // initialize the communication module
+    
    
     while (1)
     {
@@ -101,7 +120,7 @@ void main(void)
 
 /**
    @Description
- * this function is called when the PWM changes from high to low or vica versa
+ * this function is called when the input signal needs to be measured timeBased
 
    @Preconditions
     it needs to be connected 
@@ -112,11 +131,46 @@ void main(void)
    @Returns
      None
  */
-void mainPwmChangeCallbackFunction(void)
+void measureInputDiodeTimeCallbackFunction(void)
 {
     bool pwmVal = RC3_GetValue();
     // check high low and start data capture
     startDataCapture(pwmVal);
+}
+
+/**
+   @Description
+ * this function is called when new data should be send
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void SendDataCallbackFunction(void)
+{
+    // copy the array in the send array
+    for(int i = 0; i < 8; i++)
+    {
+        // conversion from 16 bit to 8 bit
+        if (i%2 == 0)
+        {
+            // get the MSB
+            sendDataArr[i] = (uint8_t)((getResultArrData((char)(i/2)) >> 8 ) & UINT8_MAX);
+        }
+        else
+        {
+            // get the LSB
+            sendDataArr[i] = (uint8_t)(getResultArrData((char)(i/2)) & UINT8_MAX);
+        }
+    }
+    
+    // send the data
+    sendDataArrayI2C((char)ARDUINO_ADDRESS);
 }
 
 

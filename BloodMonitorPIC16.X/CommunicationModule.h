@@ -34,14 +34,34 @@
  Includes
 ****************************************************************************/
 #include <xc.h> // include processor files - each processor file is guarded.  
-
+#include <stdint.h>
+#include <stdbool.h>
 /****************************************************************************
  Defines
 ****************************************************************************/
+#define SEND_DATA_ARR_LEN 8
+/****************************************************************************
+ Public Variables
+****************************************************************************/
+uint8_t sendDataArr[SEND_DATA_ARR_LEN]; 
 
 /****************************************************************************
  Public Functions
 ****************************************************************************/
+/**
+   @Description
+    sends the sendDataArr over the I2C1 bus to the specified address
+
+   @Preconditions
+    I2C1_Initialize() should have been called
+
+   @Param
+ *  the address of the I2C
+
+   @Returns
+ true if succeeded
+ */
+bool sendDataArrayI2C(uint16_t deviceAddress);
 
 #ifdef	__cplusplus
 extern "C" {

@@ -39,7 +39,8 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
-
+// The Callbackfunction for if the data needs to be send
+typedef void (*sendDataCallbackFunction)(void);
 /****************************************************************************
  Public Functions
 ****************************************************************************/
@@ -52,12 +53,12 @@
          before calling this function.
 
    @Param
- *  none
+ *  the address of the callbackfunction called when data needs to be send
 
    @Returns
      None
  */
-void initializeDataConversion(void);
+void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunction);
 
 /**
    @Description
@@ -74,6 +75,21 @@ void initializeDataConversion(void);
      None
  */
 void startDataCapture(bool highFlank);
+
+/**
+   @Description
+ * this function is used to get data from the result data array
+
+   @Preconditions
+    none
+
+   @Param
+ *  the index number of the array; shouldn't be more than the elements - 1
+
+   @Returns
+    returns the value in the array
+ */
+uint16_t getResultArrData(char index);
 
 #ifdef	__cplusplus
 extern "C" {
