@@ -62,10 +62,6 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         {
             ADC_ISR();
         } 
-        else if(PIE1bits.BCL1IE == 1 && PIR1bits.BCL1IF == 1)
-        {
-            I2C1_BusCollisionISR();
-        } 
         else if(PIE1bits.SSP1IE == 1 && PIR1bits.SSP1IF == 1)
         {
             I2C1_ISR();
