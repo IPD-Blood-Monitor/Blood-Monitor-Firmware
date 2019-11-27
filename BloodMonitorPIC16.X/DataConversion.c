@@ -18,6 +18,10 @@
  Defines
 ****************************************************************************/
 #define RESULT_ARRAY_SIZE 4
+#define MOVING_AVG_SIZE 8
+#define AMOUNT_DIODES 2
+#define AMOUNT_WAVELENGTHS 3
+
 // enum to know which diode is being used 
 typedef enum{
  diode1 = channel_ANC0,
@@ -30,6 +34,7 @@ typedef enum{
  diode2H = 2,
  diode2L = 3
 }measureState_t;
+
 
 #define AMOUNT_DATA_CONV_FOR_SEND 4
 //// struct to store the high and low raw diode values in
@@ -58,6 +63,11 @@ bool I2CTransmissionBusy = false;
 uint8_t dataConversions = 0;
 sendDataCallbackFunction p_sendDataCallbackFunctionfp;
 bool sendDataCallbackFunctionConnected = false;
+Wavelenght_t activeWavelenght = w660;
+
+uint16_t movingAvgResultDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
+uint16_t movingAvgRawDataDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS][MOVING_AVG_SIZE];
+uint8_t movingAvgRawDataIndexDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
 
 /**
    @Description
@@ -93,7 +103,7 @@ void adcConversionDone(void);
  */
 void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunction)
 {
-    int i = 0;
+    int i = 0, j = 0, k = 0;
     //connect the callback function
     ConnectCallbackFunction(&adcConversionDone);
     p_sendDataCallbackFunctionfp = p_sendDataCallbackFunction;
@@ -107,6 +117,19 @@ void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunctio
     for(i = 0; i < RESULT_ARRAY_SIZE; i++)
     {
         rawResultArr[i] = 0;
+    }
+    // empty the moving average
+    for(i = 0; i < AMOUNT_DIODES; i++)
+    {
+        for(j = 0; j < AMOUNT_WAVELENGTHS; j++)
+        {
+            movingAvgResultDWArr[i][j] = 0;
+            movingAvgRawDataIndexDWArr[i][j] = 0;
+            for(k = 0; k < MOVING_AVG_SIZE; k++)
+            {
+                movingAvgRawDataDWArr[i][j][k] = 0;
+            }
+        }
     }
     
     // start with the first Diode
@@ -169,6 +192,25 @@ uint16_t getResultArrData(char index)
     // return
     return returnVal;
 }
+
+/**
+   @Description
+ * this function is used to set a specific wavelenght
+
+   @Preconditions
+    none
+
+   @Param
+ *  what the new driven wavelenght is
+
+   @Returns
+    none
+ */
+void setWavelenght(Wavelenght_t newWavelenght)
+{
+    // set the new wavelenght
+    activeWavelenght = newWavelenght;
+}
 /****************************************************************************
 Private Functions
 ****************************************************************************/
@@ -187,8 +229,35 @@ Private Functions
  */
 void adcConversionDone(void)
 {
-    // save the result
+    // save the result somewhere 
     rawResultArr[measState] = ADC_GetConversionResult();
+    
+    // increase the index for the raw data array (rotate)
+    movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght] = 
+    (movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght] + 1) % MOVING_AVG_SIZE;
+    
+    // set the new data in the raw data array
+    movingAvgRawDataDWArr[measState>>1][activeWavelenght][movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]] 
+    = rawResultArr[measState];
+    
+    // if faster calculation is possible
+#ifdef MOVING_AVG_SIZE == 8
+    // calculate new moving average 
+    // by adding sample N and subtracting sample N-MOVING_AVG_SIZE (this is divided by MOVING_AVG_SIZE)
+    movingAvgResultDWArr[measState>>1][activeWavelenght] = 
+    movingAvgResultDWArr[measState>>1][activeWavelenght] +
+    ((rawResultArr[measState] 
+    - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
+    >> 3);
+#else
+    // calculate new moving average 
+    // by adding sample N and subtracting the N-MOVING_AVG_SIZE sample (this is divided by MOVING_AVG_SIZE)
+    movingAvgResultDWArr[measState>>1][activeWavelenght] = 
+    movingAvgResultDWArr[measState>>1][activeWavelenght] +
+    ((rawResultArr[measState] 
+    - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
+    / MOVING_AVG_SIZE);
+#endif
     if (!I2CTransmissionBusy)
     {
         // copy the array as long as there is no I2C transmission

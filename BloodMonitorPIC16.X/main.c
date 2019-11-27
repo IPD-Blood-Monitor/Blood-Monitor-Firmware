@@ -83,6 +83,21 @@ void measureInputDiodeTimeCallbackFunction(void);
  */
 void SendDataCallbackFunction(void);
 
+/**
+   @Description
+ * this function is called when an other diode is selected
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void otherLEDDrivedCallbackFunction(MUXChannel_t newWavelenght);
+
 /*
                          Main application
  */
@@ -107,7 +122,7 @@ void main(void)
     //INTERRUPT_PeripheralInterruptDisable();
 
     // initial LED driver
-    InitializeLEDDriver(PWMUCGEN, &measureInputDiodeTimeCallbackFunction);
+    InitializeLEDDriver(PWMUCGEN, &measureInputDiodeTimeCallbackFunction, &otherLEDDrivedCallbackFunction);
     
     // initialize data conversion
     initializeDataConversion(&SendDataCallbackFunction);
@@ -178,6 +193,26 @@ void SendDataCallbackFunction(void)
 #endif
 }
 
+/**
+   @Description
+ * this function is called when an other diode is selected
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void otherLEDDrivedCallbackFunction(MUXChannel_t newWavelenght)
+{
+    // check if the conversion can be done
+    if(newWavelenght < 3)
+        // set the data to the data conversion module
+        setWavelenght((Wavelenght_t)newWavelenght);
+}
 
 /**
  End of File

@@ -40,8 +40,17 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
+typedef enum 
+{
+    LED660 = 0,
+    LED850 = 1,
+    LED940 = 2,
+    NOLED  = 3
+}MUXChannel_t;
+
 // The Callbackfunction for if the ADC is done
 typedef void (*measureInputCallbackFunction)(void);
+typedef void (*changeLEDCallbackFunction)(MUXChannel_t newWavelenght);
 
 /****************************************************************************
  Public Functions
@@ -59,11 +68,13 @@ typedef void (*measureInputCallbackFunction)(void);
    @Param
  *  if the PWM module of the microcontroller is used
  *  address of the callback function to the pwm change function
+ *  if the an other LED is selected with the MUX
+ *  address of the callback function to the LED change function
 
    @Returns
      None
  */
-void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction);
+void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction, changeLEDCallbackFunction p_changeLEDCallbackFunction);
 
 
 

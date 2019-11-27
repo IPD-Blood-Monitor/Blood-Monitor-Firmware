@@ -39,6 +39,13 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
+typedef enum 
+{
+    w660 = 0,
+    w850 = 1,
+    w940 = 2,
+}Wavelenght_t;
+
 // The Callbackfunction for if the data needs to be send
 typedef void (*sendDataCallbackFunction)(void);
 /****************************************************************************
@@ -90,6 +97,21 @@ void startDataCapture(bool highFlank);
     returns the value in the array
  */
 uint16_t getResultArrData(char index);
+
+/**
+   @Description
+ * this function is used to set a specific wavelenght
+
+   @Preconditions
+    none
+
+   @Param
+ *  what the new driven wavelenght is
+
+   @Returns
+    none
+ */
+void setWavelenght(Wavelenght_t newWavelenght);
 
 #ifdef	__cplusplus
 extern "C" {

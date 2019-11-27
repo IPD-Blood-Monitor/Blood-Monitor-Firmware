@@ -19,16 +19,13 @@
  Defines
 ****************************************************************************/
 #define PERIOD_COUNT_FOR_CHANGE 10000 // frequency of the PWM so 1s
-typedef enum 
-{
-    LED660 = 0,
-    LED850 = 1,
-    LED940 = 2,
-    NOLED  = 3
-}MUXChannel_t;
+
 
 measureInputCallbackFunction p_measureInputCallbackFunctionfp;
-bool pwmChangeCallbackFunctionConnected  = false;
+changeLEDCallbackFunction p_changeLEDCallbackFunctionfp;
+
+bool measureInputCallbackFunctionConnected  = false;
+bool changeLEDCallbackFunctionConnected = false;
 unsigned int periodCount = UINT16_MAX;
 MUXChannel_t currentLED = NOLED;
 /****************************************************************************
@@ -112,15 +109,19 @@ void timer4InterruptHandler(void);
    @Param
  *  if the PWM module of the microcontroller is used
  *  address of the callback function to the pwm change function
+ *  if the an other LED is selected with the MUX
+ *  address of the callback function to the LED change function
 
    @Returns
      None
  */
-void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction)
+void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction, changeLEDCallbackFunction p_changeLEDCallbackFunction)
 {
     // connect the callback function
     p_measureInputCallbackFunctionfp = p_measureInputCallbackFunction;
-    pwmChangeCallbackFunctionConnected = true;
+    measureInputCallbackFunctionConnected = true;
+    p_changeLEDCallbackFunctionfp = p_changeLEDCallbackFunction;
+    changeLEDCallbackFunctionConnected = true;
     
     // connect all the new interrupt handlers
     TMR2_SetInterruptHandler(&timer2InterruptHandler); 
@@ -140,10 +141,6 @@ void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureIn
     // set the period count that it will switch on next LED after first period
     periodCount = PERIOD_COUNT_FOR_CHANGE;    
 }
-
-
-
-
 
 
 
@@ -212,6 +209,10 @@ void timer2InterruptHandler(void)
         currentLED = (currentLED + 1) % 3;
         changeMux(currentLED);
         
+        // callback so the dataconversion knows what LED is powered
+        if(changeLEDCallbackFunctionConnected)
+            p_changeLEDCallbackFunctionfp(currentLED);
+        
         // reset period count
         periodCount = 0;
     }
@@ -239,7 +240,8 @@ void timer3InterruptHandler(void)
     TMR3_StopTimer();
     
     // call the pwm change callbackfunction
-    p_measureInputCallbackFunctionfp();
+    if (measureInputCallbackFunctionConnected)
+        p_measureInputCallbackFunctionfp();
 }
 
 /**
@@ -264,5 +266,6 @@ void timer4InterruptHandler(void)
     TMR3_StartTimer();
     
     // call the pwm change callbackfunction
-    p_measureInputCallbackFunctionfp();
+    if (measureInputCallbackFunctionConnected)
+        p_measureInputCallbackFunctionfp();
 }
