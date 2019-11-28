@@ -29,6 +29,31 @@ I2C1_MESSAGE_STATUS i2cMessageStatus;
 ****************************************************************************/
 /**
    @Description
+ initialized the communicationmodule 
+
+   @Preconditions
+    I2C1_Initialize() should have been called
+
+   @Param
+ *  none
+
+   @Returns
+ none
+ */
+void initializeCommunicationModule(void)
+{
+    int i; 
+    
+    // empty the send data array
+    for(i = 0; i < SEND_DATA_ARR_LEN; i++)
+    {
+        sendDataArr[i] = SEND_DATA_ARR_DEFAULT_VAL;
+    }
+    
+}
+
+/**
+   @Description
     sends the sendDataArr over the I2C1 bus to the specified address
 
    @Preconditions

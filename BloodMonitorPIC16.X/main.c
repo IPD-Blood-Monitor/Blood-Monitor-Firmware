@@ -50,7 +50,6 @@
 #define PWMUCGEN true
 #define ADCUCACQ true
 #define ARDUINO_ADDRESS 0x08
-#define SKIP_I2C 
 
 //letop 5V voeden vanuitpic staat aan!!!!!
 /**
@@ -171,9 +170,8 @@ void measureInputDiodeTimeCallbackFunction(void)
  */
 void SendDataCallbackFunction(void)
 {
-#ifndef SKIP_I2C
     // copy the array in the send array
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i < SEND_DATA_ARR_LEN; i++)
     {
         // conversion from 16 bit to 8 bit
         if (i%2 == 0)
@@ -190,7 +188,6 @@ void SendDataCallbackFunction(void)
     
     // send the data
     sendDataArrayI2C((char)ARDUINO_ADDRESS);
-#endif
 }
 
 /**

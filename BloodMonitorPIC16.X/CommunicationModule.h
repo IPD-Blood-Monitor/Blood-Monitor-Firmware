@@ -39,10 +39,12 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
-#define SEND_DATA_ARR_LEN 8
+#define SEND_DATA_ARR_LEN 12
+#define SEND_DATA_ARR_DEFAULT_VAL 1
 /****************************************************************************
  Public Variables
 ****************************************************************************/
+// this array contains the data to be send 
 uint8_t sendDataArr[SEND_DATA_ARR_LEN]; 
 
 /****************************************************************************
@@ -50,10 +52,25 @@ uint8_t sendDataArr[SEND_DATA_ARR_LEN];
 ****************************************************************************/
 /**
    @Description
-    sends the sendDataArr over the I2C1 bus to the specified address
+ initialized the communicationmodule 
 
    @Preconditions
     I2C1_Initialize() should have been called
+
+   @Param
+ *  none
+
+   @Returns
+ none
+ */
+void initializeCommunicationModule(void);
+
+/**
+   @Description
+    sends the sendDataArr over the I2C1 bus to the specified address
+
+   @Preconditions
+    sendDataArrayI2C() should have been called
 
    @Param
  *  the address of the I2C

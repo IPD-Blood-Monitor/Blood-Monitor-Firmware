@@ -183,10 +183,12 @@ uint16_t getResultArrData(char index)
     // send max value if not correct
     uint16_t returnVal = UINT16_MAX;
     
-    if (index < RESULT_ARRAY_SIZE)
+    //if (index < RESULT_ARRAY_SIZE)
+    if (index < (AMOUNT_DIODES * AMOUNT_WAVELENGTHS))
     {
         // return the value
-        returnVal = resultBufferArr[index];
+        //returnVal = resultBufferArr[index];
+        returnVal = movingAvgResultDWArr[(int)(index/3)][index %3];
     }
     
     // return
