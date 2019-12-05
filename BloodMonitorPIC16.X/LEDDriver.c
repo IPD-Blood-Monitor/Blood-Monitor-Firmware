@@ -21,7 +21,7 @@
 #define PERIOD_COUNT_FOR_CHANGE 10000 // frequency of the PWM so 1s
 
 
-measureInputCallbackFunction p_measureInputCallbackFunctionfp;
+//measureInputCallbackFunction p_measureInputCallbackFunctionfp;
 changeLEDCallbackFunction p_changeLEDCallbackFunctionfp;
 
 bool measureInputCallbackFunctionConnected  = false;
@@ -47,50 +47,50 @@ MUXChannel_t currentLED = NOLED;
  */
 void changeMux(MUXChannel_t LED);
 
-/**
-   @Description
- * this function is the new timer2 interrupt handler
-
-   @Preconditions
-    TMR2_Initialize() should have been called
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void timer2InterruptHandler(void);
-
-/**
-   @Description
- * this function is the new timer3 interrupt handler
-
-   @Preconditions
-    TMR3_Initialize() should have been called
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void timer3InterruptHandler(void);
-
-/**
-   @Description
- * this function is the new timer4 interrupt handler
-
-   @Preconditions
-    TMR4_Initialize() should have been called
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void timer4InterruptHandler(void);
+///**
+//   @Description
+// * this function is the new timer2 interrupt handler
+//
+//   @Preconditions
+//    TMR2_Initialize() should have been called
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void timer2InterruptHandler(void);
+//
+///**
+//   @Description
+// * this function is the new timer3 interrupt handler
+//
+//   @Preconditions
+//    TMR3_Initialize() should have been called
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void timer3InterruptHandler(void);
+//
+///**
+//   @Description
+// * this function is the new timer4 interrupt handler
+//
+//   @Preconditions
+//    TMR4_Initialize() should have been called
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void timer4InterruptHandler(void);
 
 /****************************************************************************
  Public Functions
@@ -99,7 +99,6 @@ void timer4InterruptHandler(void);
 /**
    @Description
     initializes and starts the LED Driver to drive the MUX 
- *  and if the usePWMUc is true the PWM is module is started
  *  otherwise the GPIO interrupt is enabled
 
    @Preconditions
@@ -107,26 +106,24 @@ void timer4InterruptHandler(void);
          before calling this function.
 
    @Param
- *  if the PWM module of the microcontroller is used
- *  address of the callback function to the pwm change function
  *  if the an other LED is selected with the MUX
  *  address of the callback function to the LED change function
 
    @Returns
      None
  */
-void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction, changeLEDCallbackFunction p_changeLEDCallbackFunction)
+void InitializeLEDDriver(changeLEDCallbackFunction p_changeLEDCallbackFunction)
 {
     // connect the callback function
-    p_measureInputCallbackFunctionfp = p_measureInputCallbackFunction;
-    measureInputCallbackFunctionConnected = true;
+//    p_measureInputCallbackFunctionfp = p_measureInputCallbackFunction;
+//    measureInputCallbackFunctionConnected = true;
     p_changeLEDCallbackFunctionfp = p_changeLEDCallbackFunction;
     changeLEDCallbackFunctionConnected = true;
     
     // connect all the new interrupt handlers
-    TMR2_SetInterruptHandler(&timer2InterruptHandler); 
-    TMR3_SetInterruptHandler(&timer3InterruptHandler);
-    TMR4_SetInterruptHandler(&timer4InterruptHandler);
+//    TMR2_SetInterruptHandler(&timer2InterruptHandler); 
+//    TMR3_SetInterruptHandler(&timer3InterruptHandler);
+//    TMR4_SetInterruptHandler(&timer4InterruptHandler);
     
     // initialze the GPIO pins
     PIN_MANAGER_Initialize();
@@ -135,15 +132,43 @@ void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureIn
     currentLED = NOLED;
     changeMux(currentLED);
     
+    // output to the LEDS
+    IO_RC3_SetHigh();
+    
     // start the PWM
     // PWM FREQ 10Khz
-    TMR2_StartTimer();
+    //TMR2_StartTimer();
     
     // set the period count that it will switch on next LED after first period
-    periodCount = PERIOD_COUNT_FOR_CHANGE;    
+    //periodCount = PERIOD_COUNT_FOR_CHANGE;    
 }
 
+/**
+   @Description
+ * this selects the next wavelenght
 
+   @Preconditions
+     InitializeLEDDriver() function should have been called 
+         before calling this function.
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void SelectNextWavelenght(void)
+{
+    // change the current led
+    currentLED = (currentLED + 1) % NOLED;
+    
+    // change the mux
+    changeMux(currentLED);
+            
+    // callback so the dataconversion knows what LED is powered
+    if(changeLEDCallbackFunctionConnected)
+        p_changeLEDCallbackFunctionfp(currentLED);
+}
 
 /****************************************************************************
 Private Functions
@@ -185,88 +210,88 @@ void changeMux(MUXChannel_t LED)
         break;
     }
 }
-/**
-   @Description
- * this function is the new timer2 interrupt handler
-
-   @Preconditions
-    TMR2_Initialize() should have been called
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void timer2InterruptHandler(void)
-{
-    // up the counter
-    periodCount++;
-    
-    // check if LED should change
-    if (periodCount >= PERIOD_COUNT_FOR_CHANGE)
-    {
-        // change the mux that drives the LEDS
-        currentLED = (currentLED + 1) % 3;
-        changeMux(currentLED);
-        
-        // callback so the dataconversion knows what LED is powered
-        if(changeLEDCallbackFunctionConnected)
-            p_changeLEDCallbackFunctionfp(currentLED);
-        
-        // reset period count
-        periodCount = 0;
-    }
-               
-    // start timer 4
-    TMR4_StartTimer();
-}
-
-/**
-   @Description
- * this function is the new timer3 interrupt handler
-
-   @Preconditions
-    TMR3_Initialize() should have been called
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void timer3InterruptHandler(void)
-{
-    // stop the timer
-    TMR3_StopTimer();
-    
-    // call the pwm change callbackfunction
-    if (measureInputCallbackFunctionConnected)
-        p_measureInputCallbackFunctionfp();
-}
-
-/**
-   @Description
- * this function is the new timer4 interrupt handler
-
-   @Preconditions
-    TMR4_Initialize() should have been called
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void timer4InterruptHandler(void)
-{
-    // stop the timer
-    TMR4_StopTimer();
-    
-    // start timer 3
-    TMR3_StartTimer();
-    
-    // call the pwm change callbackfunction
-    if (measureInputCallbackFunctionConnected)
-        p_measureInputCallbackFunctionfp();
-}
+///**
+//   @Description
+// * this function is the new timer2 interrupt handler
+//
+//   @Preconditions
+//    TMR2_Initialize() should have been called
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void timer2InterruptHandler(void)
+//{
+//    // up the counter
+//    periodCount++;
+//    
+//    // check if LED should change
+//    if (periodCount >= PERIOD_COUNT_FOR_CHANGE)
+//    {
+//        // change the mux that drives the LEDS
+//        currentLED = (currentLED + 1) % 3;
+//        changeMux(currentLED);
+//        
+//        // callback so the dataconversion knows what LED is powered
+//        if(changeLEDCallbackFunctionConnected)
+//            p_changeLEDCallbackFunctionfp(currentLED);
+//        
+//        // reset period count
+//        periodCount = 0;
+//    }
+//               
+//    // start timer 4
+//    TMR4_StartTimer();
+//}
+//
+///**
+//   @Description
+// * this function is the new timer3 interrupt handler
+//
+//   @Preconditions
+//    TMR3_Initialize() should have been called
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void timer3InterruptHandler(void)
+//{
+//    // stop the timer
+//    TMR3_StopTimer();
+//    
+//    // call the pwm change callbackfunction
+//    if (measureInputCallbackFunctionConnected)
+//        p_measureInputCallbackFunctionfp();
+//}
+//
+///**
+//   @Description
+// * this function is the new timer4 interrupt handler
+//
+//   @Preconditions
+//    TMR4_Initialize() should have been called
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void timer4InterruptHandler(void)
+//{
+//    // stop the timer
+//    TMR4_StopTimer();
+//    
+//    // start timer 3
+//    TMR3_StartTimer();
+//    
+//    // call the pwm change callbackfunction
+//    if (measureInputCallbackFunctionConnected)
+//        p_measureInputCallbackFunctionfp();
+//}

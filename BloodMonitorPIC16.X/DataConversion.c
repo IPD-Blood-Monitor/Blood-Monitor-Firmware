@@ -29,11 +29,9 @@ typedef enum{
 }ADCChannel_t;
 
 typedef enum{
- diode1H = 0,
- diode1L = 1,
- diode2H = 2,
- diode2L = 3
-}measureState_t;
+ dio1 = 0,
+ dio2 = 1
+}diodeState_t;
 
 
 #define AMOUNT_DATA_CONV_FOR_SEND 6
@@ -56,13 +54,16 @@ typedef enum{
 ****************************************************************************/
 ADCChannel_t currentDiodeMes = diode1;
 //rawResult_t rawResult;
-measureState_t measState;
+diodeState_t diodeState;
 adc_result_t rawResultArr[RESULT_ARRAY_SIZE];
 static uint16_t resultBufferArr[RESULT_ARRAY_SIZE] = {0, 0, 0, 0};
 bool I2CTransmissionBusy = false;
 uint8_t dataConversions = 0;
-sendDataCallbackFunction p_sendDataCallbackFunctionfp;
-bool sendDataCallbackFunctionConnected = false;
+//sendDataCallbackFunction p_sendDataCallbackFunctionfp;
+//bool sendDataCallbackFunctionConnected = false;
+changeWaveCallbackFunction p_changeWaveCallbackFunctionfp;
+bool changeWaveCallbackFunctionConnected = false;
+
 Wavelenght_t activeWavelenght = w660;
 
 uint16_t movingAvgResultDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
@@ -84,6 +85,21 @@ uint8_t movingAvgRawDataIndexDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
  */
 void adcConversionDone(void);
 
+/**
+   @Description
+ * this function is the new timer3 interrupt handler
+
+   @Preconditions
+    TMR3_Initialize() should have been called
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void timer3InterruptHandler(void);
+
 /****************************************************************************
  Public Functions
 ****************************************************************************/
@@ -96,18 +112,23 @@ void adcConversionDone(void);
          before calling this function.
 
    @Param
- *  the address of the callbackfunction called when data needs to be send
+ *  the address of the callbackfunction called when the new wavelenght needs to be selected
 
    @Returns
      None
  */
-void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunction)
+void initializeDataConversion(changeWaveCallbackFunction p_changeWaveCallbackFunction)
 {
     int i = 0, j = 0, k = 0;
     //connect the callback function
     ConnectCallbackFunction(&adcConversionDone);
-    p_sendDataCallbackFunctionfp = p_sendDataCallbackFunction;
-    sendDataCallbackFunctionConnected = true;
+    
+    p_changeWaveCallbackFunctionfp = p_changeWaveCallbackFunction;
+    changeWaveCallbackFunctionConnected = true;
+    
+    TMR3_SetInterruptHandler(&timer3InterruptHandler);
+//    p_sendDataCallbackFunctionfp = p_sendDataCallbackFunction;
+//    sendDataCallbackFunctionConnected = true;
     
     //empty the rawresult struct
 //    rawResult.diode1.high = 0;
@@ -134,6 +155,10 @@ void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunctio
     
     // start with the first Diode
     currentDiodeMes = diode1;
+    diodeState = dio1;
+    
+    // start the measurement
+    TMR3_StartTimer();
 }
 
 /**
@@ -169,16 +194,16 @@ void dataConversionTick(void)
    @Returns
      None
  */
-void startDataCapture(bool highFlank)
+void startDataCapture(void)
 {
     // Set the channel
     ADC_SelectChannel((adc_channel_t)currentDiodeMes);
     
-    // set the measure state
-    if(currentDiodeMes == diode1)
-        measState = !highFlank;
-    else
-        measState = !highFlank + 2;
+//    // set the measure state
+//    if(currentDiodeMes == diode1)
+//        measState = !highFlank;
+//    else
+//        measState = !highFlank + 2;
     
     // capture ADC value
     ADC_StartConversion();
@@ -207,7 +232,7 @@ uint16_t getResultArrData(char index)
     {
         // return the value
         //returnVal = resultBufferArr[index];
-        returnVal = movingAvgResultDWArr[(int)(index/3)][index %3];
+        returnVal = rawResultArr[index];//movingAvgResultDWArr[(int)(index/3)][index %3]; //rawResultArr[index]
     }
     
     // return
@@ -251,25 +276,27 @@ Private Functions
 void adcConversionDone(void)
 {
     // save the result somewhere 
-    rawResultArr[measState] = ADC_GetConversionResult();
+    rawResultArr[diodeState*3+activeWavelenght] = ADC_GetConversionResult() & 0x3FF;
     
     // increase the index for the raw data array (rotate)
-    movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght] = 
-    (movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght] + 1) % MOVING_AVG_SIZE;
-    
-    // set the new data in the raw data array
-    movingAvgRawDataDWArr[measState>>1][activeWavelenght][movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]] 
-    = rawResultArr[measState];
-    
+    movingAvgRawDataIndexDWArr[diodeState][activeWavelenght] = 
+    (movingAvgRawDataIndexDWArr[diodeState][activeWavelenght] + 1) % MOVING_AVG_SIZE;
+
     // if faster calculation is possible
 #ifdef MOVING_AVG_SIZE == 8
     // calculate new moving average 
     // by adding sample N and subtracting sample N-MOVING_AVG_SIZE (this is divided by MOVING_AVG_SIZE)
-    movingAvgResultDWArr[measState>>1][activeWavelenght] = 
-    movingAvgResultDWArr[measState>>1][activeWavelenght] +
-    ((rawResultArr[measState] 
-    - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
-    >> 3);
+//    movingAvgResultDWArr[diodeState][activeWavelenght] = 
+//    (movingAvgResultDWArr[diodeState][activeWavelenght] +
+//    ((rawResultArr[diodeState*3+activeWavelenght] 
+//    - movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]])
+//    >> 3)) & 0x3FF;
+    movingAvgResultDWArr[diodeState][activeWavelenght] = 
+    (((movingAvgResultDWArr[diodeState][activeWavelenght] <<3 ) +
+    rawResultArr[diodeState*3+activeWavelenght]
+    - movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]])
+    >> 3) & 0x3FF;
+//    
 #else
     // calculate new moving average 
     // by adding sample N and subtracting the N-MOVING_AVG_SIZE sample (this is divided by MOVING_AVG_SIZE)
@@ -279,6 +306,11 @@ void adcConversionDone(void)
     - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
     / MOVING_AVG_SIZE);
 #endif
+    
+    // set the new data in the raw data array
+    movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]] 
+    = rawResultArr[diodeState*3+activeWavelenght];
+    
 //    if (!I2CTransmissionBusy)
 //    {
 //        // copy the array as long as there is no I2C transmission
@@ -305,13 +337,26 @@ void adcConversionDone(void)
     
     
     //change the channel if the low measState has occurred
-    if(measState%2 == 1)
+//    if(measState%2 == 1)
+//    {
+    
+    // change the wavelenght if Diode 2 is measured 
+    
+    if(changeWaveCallbackFunctionConnected && currentDiodeMes == diode2)
+        p_changeWaveCallbackFunctionfp();
+    
+    
+    if(currentDiodeMes == diode1)
     {
-        if(currentDiodeMes == diode1)
-            currentDiodeMes = diode2;
-        else 
-            currentDiodeMes = diode1;
+        currentDiodeMes = diode2;
+        diodeState = dio2;
     }
+    else 
+    {
+        currentDiodeMes = diode1;
+        diodeState = dio1;
+    }
+//    }
     
 //    // check which diode is measured
 //    if(currentDiodeMes == diode1)
@@ -337,4 +382,23 @@ void adcConversionDone(void)
 //        // call function that the raw data is collected
 //        
 //    }
+}
+
+/**
+   @Description
+ * this function is the new timer3 interrupt handler
+
+   @Preconditions
+    TMR3_Initialize() should have been called
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void timer3InterruptHandler(void)
+{
+    // begin data capture
+    startDataCapture();
 }

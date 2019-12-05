@@ -104,8 +104,6 @@ void PIN_MANAGER_Initialize(void)
     // Enable IOCI interrupt 
     PIE0bits.IOCIE = 1; 
     
-	
-    RC3PPS = 0x02;   //RC3->PWM5:PWM5;    
 }
   
 void PIN_MANAGER_IOC(void)

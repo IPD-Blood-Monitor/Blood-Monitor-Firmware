@@ -187,9 +187,9 @@ void timer5InterruptHandler(void)
     // check if overwritten
     if(transmissionTimerCounterVal >= transmissionTimerCounter)
     {
-//        // set the data 
-//        if (getDataCallbackFunctionConnected)
-//            p_getDataCallbackFunctionfp();      
+        // set the data 
+        if (getDataCallbackFunctionConnected)
+            p_getDataCallbackFunctionfp();      
         
         // send the data
         I2C1_MasterWriteNbitsCisOperation(adruinoAddress, sendDataArr, SEND_DATA_ARR_LEN);

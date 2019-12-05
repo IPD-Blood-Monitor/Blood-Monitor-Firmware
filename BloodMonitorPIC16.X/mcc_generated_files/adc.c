@@ -102,7 +102,7 @@ void ADC_Initialize(void)
     ADCON0 = 0x01;
     
     // ADFM left; ADNREF VSS; ADPREF VDD; ADCS FOSC/32; 
-    ADCON1 = 0x20;
+    ADCON1 = 0xA0;// was0x20;
     
     // ADACT no_auto_trigger; 
     ADACT = 0x00;

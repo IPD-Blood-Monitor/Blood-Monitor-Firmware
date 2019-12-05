@@ -49,7 +49,7 @@ typedef enum
 }MUXChannel_t;
 
 // The Callbackfunction for if the ADC is done
-typedef void (*measureInputCallbackFunction)(void);
+//typedef void (*measureInputCallbackFunction)(void);
 typedef void (*changeLEDCallbackFunction)(MUXChannel_t newWavelenght);
 
 /****************************************************************************
@@ -58,7 +58,6 @@ typedef void (*changeLEDCallbackFunction)(MUXChannel_t newWavelenght);
 /**
    @Description
     initializes and starts the LED Driver to drive the MUX 
- *  and if the usePWMUc is true the PWM is module is started
  *  otherwise the GPIO interrupt is enabled
 
    @Preconditions
@@ -66,17 +65,29 @@ typedef void (*changeLEDCallbackFunction)(MUXChannel_t newWavelenght);
          before calling this function.
 
    @Param
- *  if the PWM module of the microcontroller is used
- *  address of the callback function to the pwm change function
  *  if the an other LED is selected with the MUX
  *  address of the callback function to the LED change function
 
    @Returns
      None
  */
-void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureInputCallbackFunction, changeLEDCallbackFunction p_changeLEDCallbackFunction);
+void InitializeLEDDriver(changeLEDCallbackFunction p_changeLEDCallbackFunction);
 
+/**
+   @Description
+ * this selects the next wavelenght
 
+   @Preconditions
+     InitializeLEDDriver() function should have been called 
+         before calling this function.
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void SelectNextWavelenght(void);
 
 #ifdef	__cplusplus
 extern "C" {

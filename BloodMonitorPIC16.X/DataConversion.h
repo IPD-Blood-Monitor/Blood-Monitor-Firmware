@@ -47,7 +47,8 @@ typedef enum
 }Wavelenght_t;
 
 // The Callbackfunction for if the data needs to be send
-typedef void (*sendDataCallbackFunction)(void);
+typedef void (*changeWaveCallbackFunction)(void);
+
 /****************************************************************************
  Public Functions
 ****************************************************************************/
@@ -60,12 +61,13 @@ typedef void (*sendDataCallbackFunction)(void);
          before calling this function.
 
    @Param
- *  the address of the callbackfunction called when data needs to be send
+ *  the address of the callbackfunction called when the new wavelenght needs to be selected
 
    @Returns
      None
  */
-void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunction);
+void initializeDataConversion(changeWaveCallbackFunction p_changeWaveCallbackFunction);
+
 /**
    @Description
  * this function need to be called in the main loop 
@@ -96,7 +98,7 @@ void dataConversionTick(void);
    @Returns
      None
  */
-void startDataCapture(bool highFlank);
+void startDataCapture(void);
 
 /**
    @Description

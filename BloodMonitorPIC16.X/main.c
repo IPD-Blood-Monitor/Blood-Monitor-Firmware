@@ -53,20 +53,20 @@
 #define ARDUINO_ADDRESS 0x08
 
 //letop 5V voeden vanuitpic staat aan!!!!!
-/**
-   @Description
- * this function is called when the input signal needs to be measured timeBased
-
-   @Preconditions
-    it needs to be connected 
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void measureInputDiodeTimeCallbackFunction(void);
+///**
+//   @Description
+// * this function is called when the input signal needs to be measured timeBased
+//
+//   @Preconditions
+//    it needs to be connected 
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void measureInputDiodeTimeCallbackFunction(void);
 
 /**
    @Description
@@ -82,6 +82,21 @@ void measureInputDiodeTimeCallbackFunction(void);
      None
  */
 void SendDataCallbackFunction(void);
+
+/**
+   @Description
+ * this function is called when the new wavelenght should be selected
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void doChangeWaveLCallbackFunction(void);
 
 /**
    @Description
@@ -137,10 +152,10 @@ void main(void)
     //INTERRUPT_PeripheralInterruptDisable();
 
     // initial LED driver
-    InitializeLEDDriver(PWMUCGEN, &measureInputDiodeTimeCallbackFunction, &otherLEDDrivedCallbackFunction);
+    InitializeLEDDriver(&otherLEDDrivedCallbackFunction);
     
     // initialize data conversion
-    initializeDataConversion(&SendDataCallbackFunction);
+    initializeDataConversion(&doChangeWaveLCallbackFunction);
     
     // initialize the communication module
     initializeCommunicationModule(ARDUINO_ADDRESS, &SaveDataCallbackFunction);
@@ -154,25 +169,25 @@ void main(void)
     }
 }
 
-/**
-   @Description
- * this function is called when the input signal needs to be measured timeBased
-
-   @Preconditions
-    it needs to be connected 
-
-   @Param
- *  none
-
-   @Returns
-     None
- */
-void measureInputDiodeTimeCallbackFunction(void)
-{
-    bool pwmVal = RC3_GetValue();
-    // check high low and start data capture
-    startDataCapture(pwmVal);
-}
+///**
+//   @Description
+// * this function is called when the input signal needs to be measured timeBased
+//
+//   @Preconditions
+//    it needs to be connected 
+//
+//   @Param
+// *  none
+//
+//   @Returns
+//     None
+// */
+//void measureInputDiodeTimeCallbackFunction(void)
+//{
+//    bool pwmVal = RC3_GetValue();
+//    // check high low and start data capture
+//    startDataCapture(pwmVal);
+//}
 
 /**
    @Description
@@ -209,6 +224,25 @@ void SendDataCallbackFunction(void)
     //sendDataArrayI2C((char)ARDUINO_ADDRESS);
     //I2C1_MasterWriteNbitsCisOperation(ARDUINO_ADDRESS, sendDataArr, SEND_DATA_ARR_LEN);
     
+}
+
+/**
+   @Description
+ * this function is called when the new wavelenght should be selected
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void doChangeWaveLCallbackFunction(void)
+{
+    // change the wavelenght
+    SelectNextWavelenght();
 }
 
 /**

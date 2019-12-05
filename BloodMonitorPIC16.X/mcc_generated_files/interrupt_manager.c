@@ -59,7 +59,6 @@ void __interrupt() INTERRUPT_InterruptManager (void)
     }
     else if(INTCONbits.PEIE == 1)
     {
-        
         if(PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1)
         {
             ADC_ISR();
@@ -68,17 +67,9 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         {
             TMR5_ISR();
         } 
-        else if(PIE2bits.TMR4IE == 1 && PIR2bits.TMR4IF == 1)
-        {
-            TMR4_ISR();
-        } 
         else if(PIE3bits.TMR3IE == 1 && PIR3bits.TMR3IF == 1)
         {
             TMR3_ISR();
-        } 
-        else if(PIE1bits.TMR2IE == 1 && PIR1bits.TMR2IF == 1)
-        {
-            TMR2_ISR();
         } 
         else if(PIE1bits.BCL1IE == 1 && PIR1bits.BCL1IF == 1)
         {
@@ -87,7 +78,7 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         else if(PIE1bits.SSP1IE == 1 && PIR1bits.SSP1IF == 1)
         {
             MSSP1_InterruptHandler();
-        } 
+        }
         else
         {
             //Unhandled Interrupt
