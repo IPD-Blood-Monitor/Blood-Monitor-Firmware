@@ -17,7 +17,7 @@
 /****************************************************************************
  Defines
 ****************************************************************************/
-#define RESULT_ARRAY_SIZE 4
+#define RESULT_ARRAY_SIZE 6
 #define MOVING_AVG_SIZE 8
 #define AMOUNT_DIODES 2
 #define AMOUNT_WAVELENGTHS 3
@@ -36,7 +36,7 @@ typedef enum{
 }measureState_t;
 
 
-#define AMOUNT_DATA_CONV_FOR_SEND 4
+#define AMOUNT_DATA_CONV_FOR_SEND 6
 //// struct to store the high and low raw diode values in
 //typedef struct
 //{
@@ -134,6 +134,25 @@ void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunctio
     
     // start with the first Diode
     currentDiodeMes = diode1;
+}
+
+/**
+   @Description
+ * this function need to be called in the main loop 
+
+   @Preconditions
+     initializeDataConversion() function should have been called 
+         before calling this function.
+
+   @Param
+ * none
+
+   @Returns
+     None
+ */
+void dataConversionTick(void)
+{
+    
 }
 
 /**
@@ -260,28 +279,29 @@ void adcConversionDone(void)
     - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
     / MOVING_AVG_SIZE);
 #endif
-    if (!I2CTransmissionBusy)
-    {
-        // copy the array as long as there is no I2C transmission
-        resultBufferArr[measState] = rawResultArr[measState];
-        
-        // increase the amount of data conversion
-        dataConversions++;
-    }
-    
-    // if the ammount of dataConversion is reached to send it
-    if (dataConversions >= AMOUNT_DATA_CONV_FOR_SEND)
-    {
-        // the transmission is busy
-        I2CTransmissionBusy = true;
-        
-        // send the data
-        if(sendDataCallbackFunctionConnected)
-            p_sendDataCallbackFunctionfp();
-        
-        // reset the counter
-        dataConversions = 0;
-    }
+//    if (!I2CTransmissionBusy)
+//    {
+//        // copy the array as long as there is no I2C transmission
+//        // with D1w660 D1W850 D1W940 D2w660 D2w850 D2950
+//        //resultBufferArr[((measState>>1)*3)+activeWavelenght] = movingAvgResultDWArr[measState>>1][activeWavelenght];
+//        
+//        // increase the amount of data conversion
+//        dataConversions++;
+//    }
+//    
+//    // if the ammount of dataConversion is reached to send it
+//    if (dataConversions >= AMOUNT_DATA_CONV_FOR_SEND)
+//    {
+//        // the transmission is busy
+//        //I2CTransmissionBusy = true;
+//        
+//        // send the data
+//        if(sendDataCallbackFunctionConnected)
+//            p_sendDataCallbackFunctionfp();
+//        
+//        // reset the counter
+//        dataConversions = 0;
+//    }
     
     
     //change the channel if the low measState has occurred

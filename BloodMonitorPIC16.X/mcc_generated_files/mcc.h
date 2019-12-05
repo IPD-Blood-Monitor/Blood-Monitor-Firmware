@@ -52,12 +52,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "interrupt_manager.h"
-#include "i2c1.h"
+#include "tmr5.h"
 #include "tmr3.h"
 #include "tmr4.h"
 #include "tmr2.h"
-#include "adc.h"
 #include "pwm5.h"
+#include "adc.h"
 
 
 

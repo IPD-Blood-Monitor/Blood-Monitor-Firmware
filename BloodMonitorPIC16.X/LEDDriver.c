@@ -136,6 +136,7 @@ void InitializeLEDDriver(bool UsePWMUc, measureInputCallbackFunction p_measureIn
     changeMux(currentLED);
     
     // start the PWM
+    // PWM FREQ 10Khz
     TMR2_StartTimer();
     
     // set the period count that it will switch on next LED after first period

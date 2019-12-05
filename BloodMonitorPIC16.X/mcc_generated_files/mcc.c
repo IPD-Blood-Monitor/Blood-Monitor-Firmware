@@ -54,12 +54,12 @@ void SYSTEM_Initialize(void)
     PIN_MANAGER_Initialize();
     OSCILLATOR_Initialize();
     WDT_Initialize();
-    I2C1_Initialize();
     ADC_Initialize();
     TMR3_Initialize();
     TMR4_Initialize();
     TMR2_Initialize();
     PWM5_Initialize();
+    TMR5_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)

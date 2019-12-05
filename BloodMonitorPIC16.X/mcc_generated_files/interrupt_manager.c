@@ -48,6 +48,7 @@
 
 #include "interrupt_manager.h"
 #include "mcc.h"
+#include "../I2CDriver.h"
 
 void __interrupt() INTERRUPT_InterruptManager (void)
 {
@@ -58,17 +59,14 @@ void __interrupt() INTERRUPT_InterruptManager (void)
     }
     else if(INTCONbits.PEIE == 1)
     {
+        
         if(PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1)
         {
             ADC_ISR();
         } 
-        else if(PIE1bits.BCL1IE == 1 && PIR1bits.BCL1IF == 1)
+        else if(PIE4bits.TMR5IE == 1 && PIR4bits.TMR5IF == 1)
         {
-            I2C1_BusCollisionISR();
-        } 
-        else if(PIE1bits.SSP1IE == 1 && PIR1bits.SSP1IF == 1)
-        {
-            I2C1_ISR();
+            TMR5_ISR();
         } 
         else if(PIE2bits.TMR4IE == 1 && PIR2bits.TMR4IF == 1)
         {
@@ -81,6 +79,14 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         else if(PIE1bits.TMR2IE == 1 && PIR1bits.TMR2IF == 1)
         {
             TMR2_ISR();
+        } 
+        else if(PIE1bits.BCL1IE == 1 && PIR1bits.BCL1IF == 1)
+        {
+            MSSP1_InterruptHandler();
+        } 
+        else if(PIE1bits.SSP1IE == 1 && PIR1bits.SSP1IF == 1)
+        {
+            MSSP1_InterruptHandler();
         } 
         else
         {

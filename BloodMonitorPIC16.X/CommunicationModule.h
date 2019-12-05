@@ -36,6 +36,7 @@
 #include <xc.h> // include processor files - each processor file is guarded.  
 #include <stdint.h>
 #include <stdbool.h>
+#include "I2CDriver.h"
 /****************************************************************************
  Defines
 ****************************************************************************/
@@ -46,6 +47,8 @@
 ****************************************************************************/
 // this array contains the data to be send 
 uint8_t sendDataArr[SEND_DATA_ARR_LEN]; 
+typedef void (*getDataCallbackFunction)(void);
+
 
 /****************************************************************************
  Public Functions
@@ -58,12 +61,13 @@ uint8_t sendDataArr[SEND_DATA_ARR_LEN];
     I2C1_Initialize() should have been called
 
    @Param
- *  none
+ *  the I2C address
+ * the address of the function to set the data in the send data array 
 
    @Returns
  none
  */
-void initializeCommunicationModule(void);
+void initializeCommunicationModule(uint8_t I2CAddress, getDataCallbackFunction p_getDataCallbackFunction);
 
 /**
    @Description
@@ -78,7 +82,36 @@ void initializeCommunicationModule(void);
    @Returns
  true if succeeded
  */
-bool sendDataArrayI2C(uint16_t deviceAddress);
+//bool sendDataArrayI2C(uint16_t deviceAddress);
+
+/**
+   @Description
+    Starts the timer to send data every x times 50ms
+
+   @Preconditions
+    initializeCommunicationModule() should have been called
+
+   @Param
+ *  the amount of time to send new data times 50ms
+
+   @Returns
+ true if succeeded
+ */
+bool StartI2CSender(uint32_t transmissionTimeX50ms);
+
+/**
+   @Description
+    stops the timer to send data every x times 50ms
+
+   @Preconditions
+    initializeCommunicationModule() should have been called
+
+   @Param
+
+   @Returns
+ true if succeeded
+ */
+bool StopI2CSender(void);
 
 #ifdef	__cplusplus
 extern "C" {

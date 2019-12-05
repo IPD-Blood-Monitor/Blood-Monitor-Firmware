@@ -46,6 +46,7 @@
 #include "CommunicationModule.h"
 #include "DataConversion.h"
 #include "LEDDriver.h"
+#include "I2CDriver.h"
 
 #define PWMUCGEN true
 #define ADCUCACQ true
@@ -81,6 +82,21 @@ void measureInputDiodeTimeCallbackFunction(void);
      None
  */
 void SendDataCallbackFunction(void);
+
+/**
+   @Description
+ * this function is called when new data should be saved to the sending array
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void SaveDataCallbackFunction(void);
 
 /**
    @Description
@@ -127,7 +143,10 @@ void main(void)
     initializeDataConversion(&SendDataCallbackFunction);
     
     // initialize the communication module
+    initializeCommunicationModule(ARDUINO_ADDRESS, &SaveDataCallbackFunction);
     
+    // start the I2C transmission
+    StartI2CSender(20);
    
     while (1)
     {
@@ -187,7 +206,41 @@ void SendDataCallbackFunction(void)
     }
     
     // send the data
-    sendDataArrayI2C((char)ARDUINO_ADDRESS);
+    //sendDataArrayI2C((char)ARDUINO_ADDRESS);
+    //I2C1_MasterWriteNbitsCisOperation(ARDUINO_ADDRESS, sendDataArr, SEND_DATA_ARR_LEN);
+    
+}
+
+/**
+   @Description
+ * this function is called when new data should be saved to the sending array
+
+   @Preconditions
+    it needs to be connected 
+
+   @Param
+ *  none
+
+   @Returns
+     None
+ */
+void SaveDataCallbackFunction(void)
+{
+    // copy the array in the send array
+    for(int i = 0; i < SEND_DATA_ARR_LEN; i++)
+    {
+        // conversion from 16 bit to 8 bit
+        if (i%2 == 0)
+        {
+            // get the MSB
+            sendDataArr[i] = (uint8_t)((getResultArrData((char)(i/2)) >> 8 ) & UINT8_MAX);
+        }
+        else
+        {
+            // get the LSB
+            sendDataArr[i] = (uint8_t)(getResultArrData((char)(i/2)) & UINT8_MAX);
+        }
+    }
 }
 
 /**

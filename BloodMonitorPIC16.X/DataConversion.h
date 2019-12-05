@@ -66,6 +66,21 @@ typedef void (*sendDataCallbackFunction)(void);
      None
  */
 void initializeDataConversion(sendDataCallbackFunction p_sendDataCallbackFunction);
+/**
+   @Description
+ * this function need to be called in the main loop 
+
+   @Preconditions
+     initializeDataConversion() function should have been called 
+         before calling this function.
+
+   @Param
+ * none
+
+   @Returns
+     None
+ */
+void dataConversionTick(void);
 
 /**
    @Description
@@ -112,6 +127,8 @@ uint16_t getResultArrData(char index);
     none
  */
 void setWavelenght(Wavelenght_t newWavelenght);
+
+void dataConversionTick(void);
 
 #ifdef	__cplusplus
 extern "C" {
