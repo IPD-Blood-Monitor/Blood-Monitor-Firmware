@@ -140,7 +140,7 @@ bool ADC_IsConversionDone()
 
 adc_result_t ADC_GetConversionResult(void)
 {
-    // Conversion finished, return the result
+    // Conversion finished, return the result 
     return ((adc_result_t)((ADRESH << 8) + ADRESL));
 }
 

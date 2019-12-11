@@ -69,6 +69,7 @@ Wavelenght_t activeWavelenght = w660;
 uint16_t movingAvgResultDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
 uint16_t movingAvgRawDataDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS][MOVING_AVG_SIZE];
 uint8_t movingAvgRawDataIndexDWArr[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
+uint16_t sumOfNMeasurements[AMOUNT_DIODES][AMOUNT_WAVELENGTHS];
 
 /**
    @Description
@@ -146,13 +147,14 @@ void initializeDataConversion(changeWaveCallbackFunction p_changeWaveCallbackFun
         {
             movingAvgResultDWArr[i][j] = 0;
             movingAvgRawDataIndexDWArr[i][j] = 0;
+            sumOfNMeasurements[i][j] = 0;
             for(k = 0; k < MOVING_AVG_SIZE; k++)
             {
                 movingAvgRawDataDWArr[i][j][k] = 0;
             }
         }
     }
-    
+        
     // start with the first Diode
     currentDiodeMes = diode1;
     diodeState = dio1;
@@ -232,7 +234,7 @@ uint16_t getResultArrData(char index)
     {
         // return the value
         //returnVal = resultBufferArr[index];
-        returnVal = rawResultArr[index];//movingAvgResultDWArr[(int)(index/3)][index %3]; //rawResultArr[index]
+        returnVal = movingAvgResultDWArr[(int)(index/3)][index %3]; //rawResultArr[index] !!!!!!1 change this
     }
     
     // return
@@ -282,6 +284,12 @@ void adcConversionDone(void)
     movingAvgRawDataIndexDWArr[diodeState][activeWavelenght] = 
     (movingAvgRawDataIndexDWArr[diodeState][activeWavelenght] + 1) % MOVING_AVG_SIZE;
 
+    // remove the oldest sample
+    sumOfNMeasurements[diodeState][activeWavelenght] -=  movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]];
+    
+    // add the new sample 
+    sumOfNMeasurements[diodeState][activeWavelenght] += rawResultArr[diodeState*3+activeWavelenght];
+    
     // if faster calculation is possible
 #ifdef MOVING_AVG_SIZE == 8
     // calculate new moving average 
@@ -291,20 +299,22 @@ void adcConversionDone(void)
 //    ((rawResultArr[diodeState*3+activeWavelenght] 
 //    - movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]])
 //    >> 3)) & 0x3FF;
-    movingAvgResultDWArr[diodeState][activeWavelenght] = 
-    (((movingAvgResultDWArr[diodeState][activeWavelenght] <<3 ) +
-    rawResultArr[diodeState*3+activeWavelenght]
-    - movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]])
-    >> 3) & 0x3FF;
+//    movingAvgResultDWArr[diodeState][activeWavelenght] = 
+//    (((movingAvgResultDWArr[diodeState][activeWavelenght] <<3 ) +
+//    rawResultArr[diodeState*3+activeWavelenght]
+//    - movingAvgRawDataDWArr[diodeState][activeWavelenght][movingAvgRawDataIndexDWArr[diodeState][activeWavelenght]])
+//    >> 3) & 0x3FF;
+    movingAvgResultDWArr[diodeState][activeWavelenght] =  (sumOfNMeasurements[diodeState][activeWavelenght] >> 3) & 0x3FF;
 //    
 #else
     // calculate new moving average 
     // by adding sample N and subtracting the N-MOVING_AVG_SIZE sample (this is divided by MOVING_AVG_SIZE)
-    movingAvgResultDWArr[measState>>1][activeWavelenght] = 
-    movingAvgResultDWArr[measState>>1][activeWavelenght] +
-    ((rawResultArr[measState] 
-    - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
-    / MOVING_AVG_SIZE);
+//    movingAvgResultDWArr[measState>>1][activeWavelenght] = 
+//    movingAvgResultDWArr[measState>>1][activeWavelenght] +
+//    ((rawResultArr[measState] 
+//    - movingAvgRawDataDWArr[measState>>1][activeWavelenght][(movingAvgRawDataIndexDWArr[measState>>1][activeWavelenght]+1) % MOVING_AVG_SIZE])
+//    / MOVING_AVG_SIZE);
+    movingAvgResultDWArr[diodeState][activeWavelenght] =  (sumOfNMeasurements[diodeState][activeWavelenght] / MOVING_AVG_SIZE) & 0x3FF;
 #endif
     
     // set the new data in the raw data array
