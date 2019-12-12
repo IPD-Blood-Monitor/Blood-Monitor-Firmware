@@ -44,8 +44,7 @@
     SOFTWARE.
 */
 
-#include "I2CDriver.h"
-//#include "mcc_generated_files/interrupt_manager.h"
+#include "i2c1_master.h"
 #include <xc.h>
 
 // I2C1 STATES
@@ -182,7 +181,6 @@ void I2C1_Initialize()
     SSP1DATPPS = 0b10101;   //RC5->MSSP1:SDA1;    
     
     SSP1CON1bits.SSPEN = 0;
-    
 }
 
 i2c1_error_t I2C1_Open(i2c1_address_t address)

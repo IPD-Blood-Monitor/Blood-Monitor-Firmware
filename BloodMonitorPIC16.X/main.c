@@ -46,7 +46,8 @@
 #include "CommunicationModule.h"
 #include "DataConversion.h"
 #include "LEDDriver.h"
-#include "I2CDriver.h"
+
+#warning TIMERS NEEDS TO BE DIVIDED BY 8!!!
 
 #define PWMUCGEN true
 #define ADCUCACQ true

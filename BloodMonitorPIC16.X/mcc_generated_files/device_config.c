@@ -13,7 +13,7 @@
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.77
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16F18325
         Driver Version    :  2.00
     The generated drivers are tested against the following:
@@ -49,7 +49,7 @@
 // CONFIG1
 #pragma config FEXTOSC = ECH    // FEXTOSC External Oscillator mode Selection bits->EC (external clock) above 8 MHz
 #pragma config RSTOSC = EXT4X    // Power-up default value for COSC bits->EXTOSC with 4x PLL, with EXTOSC operating per FEXTOSC bits
-#pragma config CLKOUTEN = ON    // Clock Out Enable bit->CLKOUT function is enabled; FOSC/4 clock appears at OSC2
+#pragma config CLKOUTEN = OFF    // Clock Out Enable bit->CLKOUT function is disabled; I/O or oscillator function on OSC2
 #pragma config CSWEN = ON    // Clock Switch Enable bit->Writing to NOSC and NDIV is allowed
 #pragma config FCMEN = ON    // Fail-Safe Clock Monitor Enable->Fail-Safe Clock Monitor is enabled
 
@@ -66,7 +66,7 @@
 
 // CONFIG3
 #pragma config WRT = OFF    // User NVM self-write protection bits->Write protection off
-#pragma config LVP = OFF    // Low Voltage Programming Enable bit->High Voltage on MCLR/VPP must be used for programming.
+#pragma config LVP = ON    // Low Voltage Programming Enable bit->Low Voltage programming enabled. MCLR/VPP pin function is MCLR. MCLRE configuration bit is ignored.
 
 // CONFIG4
 #pragma config CP = OFF    // User NVM Program Memory Code Protection bit->User NVM code protection disabled

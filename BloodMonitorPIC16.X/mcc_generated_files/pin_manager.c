@@ -13,7 +13,7 @@
   Description:
     This header file provides implementations for pin APIs for all pins selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.77
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16F18325
         Driver Version    :  2.11
     The generated drivers are tested against the following:
@@ -57,20 +57,20 @@ void PIN_MANAGER_Initialize(void)
     /**
     LATx registers
     */
-    LATA = 0x04;
-    LATC = 0x04;
+    LATA = 0x00;
+    LATC = 0x00;
 
     /**
     TRISx registers
     */
-    TRISA = 0x33;
-    TRISC = 0x33;
+    TRISA = 0x37; //0x33
+    TRISC = 0x3F; //0x33
 
     /**
     ANSELx registers
     */
-    ANSELC = 0x3; // was 33
-    ANSELA = 0x33;
+    ANSELC = 0xC; // was 3C !!!!!! //0x07
+    ANSELA = 0x37;
 
     /**
     WPUx registers
@@ -95,15 +95,18 @@ void PIN_MANAGER_Initialize(void)
     */
     INLVLA = 0x3F;
     INLVLC = 0x3F;
-
-
+    
+    
 
 
 
    
-    // Enable IOCI interrupt 
-    PIE0bits.IOCIE = 1; 
     
+	
+    SSP1CLKPPS = 0x14;   //RC4->MSSP1:SCL1;    
+    RC4PPS = 0x18;   //RC4->MSSP1:SCL1;    
+    RC5PPS = 0x19;   //RC5->MSSP1:SDA1;    
+    SSP1DATPPS = 0x15;   //RC5->MSSP1:SDA1;    
 }
   
 void PIN_MANAGER_IOC(void)

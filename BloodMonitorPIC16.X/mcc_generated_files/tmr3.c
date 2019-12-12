@@ -13,7 +13,7 @@
   @Description
     This source file provides APIs for TMR3.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.77
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16F18325
         Driver Version    :  2.11
     The generated drivers are tested against the following:
@@ -68,17 +68,17 @@ void TMR3_Initialize(void)
     //T3GSS T3G_pin; TMR3GE disabled; T3GTM disabled; T3GPOL low; T3GGO_nDONE done; T3GSPM disabled; 
     T3GCON = 0x00;
 
-    //TMR3H 177; 
-    TMR3H = 0xB1;
+    //TMR3H 99; 
+    TMR3H = 0x63;
 
-    //TMR3L 224; 
-    TMR3L = 0xE0;
-
-    // Load the TMR value to reload variable
-    timer3ReloadVal=(uint16_t)((TMR3H << 8) | TMR3L);
+    //TMR3L 192; 
+    TMR3L = 0xC0;
 
     // Clearing IF flag before enabling the interrupt.
     PIR3bits.TMR3IF = 0;
+
+    // Load the TMR value to reload variable
+    timer3ReloadVal=(uint16_t)((TMR3H << 8) | TMR3L);
 
     // Enabling TMR3 interrupt.
     PIE3bits.TMR3IE = 1;
@@ -86,8 +86,8 @@ void TMR3_Initialize(void)
     // Set Default Interrupt Handler
     TMR3_SetInterruptHandler(TMR3_DefaultInterruptHandler);
 
-    // T3CKPS 1:8; T3SOSC T3CKI_enabled; T3SYNC synchronize; TMR3CS FOSC/4; TMR3ON enabled; 
-    T3CON = 0x31;
+    // T3CKPS 1:2; T3SOSC T3CKI_enabled; T3SYNC synchronize; TMR3CS FOSC; TMR3ON enabled; 
+    T3CON = 0x51;
 }
 
 void TMR3_StartTimer(void)

@@ -13,7 +13,7 @@
   @Description
     This source file provides APIs for TMR5.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.77
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16F18325
         Driver Version    :  2.11
     The generated drivers are tested against the following:
@@ -74,11 +74,11 @@ void TMR5_Initialize(void)
     //TMR5L 176; 
     TMR5L = 0xB0;
 
-    // Load the TMR value to reload variable
-    timer5ReloadVal=(uint16_t)((TMR5H << 8) | TMR5L);
-
     // Clearing IF flag before enabling the interrupt.
     PIR4bits.TMR5IF = 0;
+
+    // Load the TMR value to reload variable
+    timer5ReloadVal=(uint16_t)((TMR5H << 8) | TMR5L);
 
     // Enabling TMR5 interrupt.
     PIE4bits.TMR5IE = 1;
@@ -86,8 +86,8 @@ void TMR5_Initialize(void)
     // Set Default Interrupt Handler
     TMR5_SetInterruptHandler(TMR5_DefaultInterruptHandler);
 
-    // T5CKPS 1:8; T5SOSC T5CKI_enabled; T5SYNC synchronize; TMR5CS FOSC/4; TMR5ON enabled; 
-    T5CON = 0x31;
+    // T5CKPS 1:4; T5SOSC T5CKI_enabled; T5SYNC synchronize; TMR5CS FOSC; TMR5ON enabled; 
+    T5CON = 0x61;
 }
 
 void TMR5_StartTimer(void)

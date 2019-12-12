@@ -44,8 +44,8 @@
     SOFTWARE.
 */
 
-#ifndef I2CDRIVER_H
-#define I2CDRIVER_H
+#ifndef I2C1_MASTER_H
+#define I2C1_MASTER_H
 
 /**
   Section: Included Files

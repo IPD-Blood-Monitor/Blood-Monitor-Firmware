@@ -13,7 +13,7 @@
   @Description
     This header file provides APIs for driver for TMR5.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.77
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16F18325
         Driver Version    :  2.11
     The generated drivers are tested against the following:

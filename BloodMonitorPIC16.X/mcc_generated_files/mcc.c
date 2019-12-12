@@ -13,7 +13,7 @@
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.77
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78
         Device            :  PIC16F18325
         Driver Version    :  2.00
     The generated drivers are tested against the following:
@@ -51,6 +51,7 @@ void SYSTEM_Initialize(void)
 {
 
     PMD_Initialize();
+    I2C1_Initialize();
     PIN_MANAGER_Initialize();
     OSCILLATOR_Initialize();
     WDT_Initialize();
@@ -67,8 +68,8 @@ void OSCILLATOR_Initialize(void)
     OSCCON3 = 0x00;
     // LFOEN disabled; ADOEN disabled; SOSCEN disabled; EXTOEN disabled; HFOEN disabled; 
     OSCEN = 0x00;
-    // HFFRQ 32_MHz; 
-    OSCFRQ = 0x07;
+    // HFFRQ 4_MHz; 
+    OSCFRQ = 0x03;
     // HFTUN 0; 
     OSCTUNE = 0x00;
     // Wait for PLL to stabilize

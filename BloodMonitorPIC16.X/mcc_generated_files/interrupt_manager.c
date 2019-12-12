@@ -48,7 +48,6 @@
 
 #include "interrupt_manager.h"
 #include "mcc.h"
-#include "../I2CDriver.h"
 
 void __interrupt() INTERRUPT_InterruptManager (void)
 {
